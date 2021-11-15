@@ -1,0 +1,13 @@
+.unit {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+}
+
+.unit img {
+  width: 300px;
+}
+
+.unit .description p {
+  margin: 0;
+  padding: 0;
+}

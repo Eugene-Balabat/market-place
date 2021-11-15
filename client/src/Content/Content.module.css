@@ -1,0 +1,5 @@
+.mainContent {
+  padding: 0;
+  grid-area: article;
+  display: grid;
+}
