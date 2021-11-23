@@ -56,7 +56,7 @@ class AuthController {
         return res.status(400).json({ error: { msg: 'Неверный пароль.' } })
 
       const token = jwt.sign({ userId: user.id }, config.jwtKey, {
-        expiresIn: '1h'
+        expiresIn: '30m'
       })
 
       res.json({ token })

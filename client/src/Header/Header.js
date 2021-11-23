@@ -7,7 +7,6 @@ import { connect } from 'react-redux'
 
 class HeaderConteiner extends React.Component {
   clickToLogout = () => {
-    console.log('work')
     this.props.userState.isAuthorized && this.props.setAuthorizedStatus(false)
   }
 

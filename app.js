@@ -5,7 +5,7 @@ const User = require('./models/User')
 const authMiddleware = require('./middlewares/auth-resolution')
 
 const app = express()
-const port = config.get('port') || 5000
+const port = process.env.PORT || config.get('port') || 5000
 
 app.use(express.json({ extended: true }))
 

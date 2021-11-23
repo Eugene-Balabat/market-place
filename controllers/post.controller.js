@@ -5,7 +5,7 @@ const config = require('../config/default.json')
 class PostController {
   async updateUserData(req, res) {
     try {
-      const { name, surname, index, city } = req.body
+      const { username, surname, index, city } = req.body
       const { token } = req.headers
       const decodedToken = await jwt.verify(token, config.jwtKey)
 
@@ -18,7 +18,7 @@ class PostController {
           }
         })
 
-      const result = await user.updateOne({ name, surname, index, city })
+      const result = await user.updateOne({ username, surname, index, city })
 
       if (!result.modifiedCount)
         return res.status(400).json({
@@ -37,7 +37,7 @@ class PostController {
 
       res.status(200).json({
         user: {
-          name: updatedUser.username,
+          username: updatedUser.username,
           surname: updatedUser.surname,
           city: updatedUser.city,
           index: updatedUser.index

@@ -36,7 +36,7 @@ class ProfileConteiner extends React.Component {
   }
 
   setCurrentData = data => {
-    this.props.setCurrentName(data.name)
+    this.props.setCurrentName(data.username)
     this.props.setCurrentSurname(data.surname)
     this.props.setCurrentCity(data.city)
     this.props.setCurrentIndex(data.index)
@@ -78,7 +78,6 @@ class ProfileConteiner extends React.Component {
 
     Object.entries(toastsLiveExample).forEach(element => {
       const toast = new Toast(element[1])
-      console.log(toast)
       toast.show()
     })
   }
@@ -98,8 +97,10 @@ class ProfileConteiner extends React.Component {
         if (type) {
           this.addNewToast(msg, headerToast, this.props.setNewUserToast)
           this.props.setAuthorizedStatus(false)
-        } else this.addNewToast(msg, headerToast, this.props.setNewToast)
-        this.showToasts()
+        } else {
+          this.addNewToast(msg, headerToast, this.props.setNewToast)
+          this.showToasts()
+        }
       } else if (error.request) console.log(Error, error.messages)
     }
   }
@@ -143,7 +144,7 @@ class ProfileConteiner extends React.Component {
       const response = await axios.post(
         '/api/post/updateUser',
         {
-          name: formData.name.input,
+          username: formData.name.input,
           surname: formData.surname.input,
           index: formData.index.input,
           city: formData.city.input

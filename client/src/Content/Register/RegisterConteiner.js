@@ -43,7 +43,7 @@ class RegisterConteiner extends React.Component {
   }
 
   componentDidMount() {
-    // this.props.setPreloader(true)
+    this.props.setInitialState()
   }
 
   clickToRegister = event => {

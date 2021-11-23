@@ -1,5 +1,4 @@
 import CToast from '../../Common/Toast'
-import css from './Profile.module.css'
 
 const Profile = props => {
   return (

@@ -32,23 +32,8 @@ class LogInContainer extends React.Component {
   }
 
   async componentDidMount() {
+    this.props.setInitialState()
     this.showToasts()
-    // try {
-    //   this.props.setPreloader(true)
-    //   const response = await axios.get('/api/auth/users', {
-    //     headers: { Authorization: `bearer ${localStorage.getItem('key')}` }
-    //   })
-    //   this.props.setUsers(response.data)
-    // } catch (e) {
-    //   if (e.response) {
-    //     const messages = [e.response.data.msg]
-    //     this.props.setMessages(messages)
-    //   } else if (e.request) {
-    //     console.log(e.request)
-    //   }
-    // } finally {
-    //   this.props.setPreloader(false)
-    // }
   }
 
   deleteToast = id => {
@@ -93,6 +78,7 @@ class LogInContainer extends React.Component {
         email: this.inputLogin.current.value,
         password: this.inputPassword.current.value
       })
+      console.log(response.data)
 
       this.props.setAuthorizedStatus(true, response.data.token)
     } catch (error) {

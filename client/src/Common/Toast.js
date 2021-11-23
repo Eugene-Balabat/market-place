@@ -9,7 +9,7 @@ const CToast = props => {
       <div class='toast-header p-0'>
         <img src='...' class='rounded me-2' alt='...' />
         <strong class='me-auto'>Оповещение</strong>
-        <small>1 мин назад</small>
+        <small>1 сек назад</small>
         <button
           type='button'
           class='btn-close'
