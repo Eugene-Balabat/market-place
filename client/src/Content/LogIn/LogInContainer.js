@@ -78,7 +78,6 @@ class LogInContainer extends React.Component {
         email: this.inputLogin.current.value,
         password: this.inputPassword.current.value
       })
-      console.log(response.data)
 
       this.props.setAuthorizedStatus(true, response.data.token)
     } catch (error) {

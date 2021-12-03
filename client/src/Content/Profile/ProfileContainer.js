@@ -43,7 +43,7 @@ class ProfileConteiner extends React.Component {
   }
 
   setInputData = data => {
-    this.props.setNameInput(data.name)
+    this.props.setNameInput(data.username)
     this.props.setSurnameInput(data.surname)
     this.props.setCityInput(data.city)
     this.props.setIndexInput(data.index)
@@ -164,8 +164,10 @@ class ProfileConteiner extends React.Component {
         if (type) {
           this.addNewToast(msg, headerToast, this.props.setNewUserToast)
           this.props.setAuthorizedStatus(false)
-        } else this.addNewToast(msg, headerToast, this.props.setNewToast)
-        this.showToasts()
+        } else {
+          this.addNewToast(msg, headerToast, this.props.setNewToast)
+          this.showToasts()
+        }
       } else if (error.request) console.log(Error, error.messages)
     }
   }

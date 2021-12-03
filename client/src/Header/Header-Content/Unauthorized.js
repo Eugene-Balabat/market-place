@@ -6,11 +6,6 @@ function Unauthorized() {
       <div class='collapse navbar-collapse p-0' id='navbarSupportedContent'>
         <ul class='navbar-nav me-auto mb-2 mb-lg-0'>
           <li class='nav-item'>
-            <NavLink className='nav-link' to='/main'>
-              Главная
-            </NavLink>
-          </li>
-          <li class='nav-item'>
             <NavLink className='nav-link' to='/catalog'>
               Каталог
             </NavLink>
@@ -21,7 +16,13 @@ function Unauthorized() {
             </NavLink>
           </li>
         </ul>
-        <form class='d-flex'>
+        <form
+          class='d-flex'
+          onSubmit={e => {
+            e.preventDefault()
+            e.stopPropagation()
+          }}
+        >
           <input
             class='form-control me-2'
             type='search'

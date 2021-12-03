@@ -6,11 +6,6 @@ function Authorized(props) {
       <div class='collapse navbar-collapse p-0' id='navbarSupportedContent'>
         <ul class='navbar-nav me-auto mb-2 mb-lg-0'>
           <li class='nav-item'>
-            <NavLink className='nav-link' to='/main'>
-              Главная
-            </NavLink>
-          </li>
-          <li class='nav-item'>
             <NavLink className='nav-link' to='/catalog'>
               Каталог
             </NavLink>
@@ -21,12 +16,23 @@ function Authorized(props) {
             </NavLink>
           </li>
           <li class='nav-item'>
+            <NavLink className='nav-link' to='/order'>
+              Корзина
+            </NavLink>
+          </li>
+          <li class='nav-item'>
             <NavLink className='nav-link' to='/' onClick={props.clickToLogout}>
               Выход
             </NavLink>
           </li>
         </ul>
-        <form class='d-flex'>
+        <form
+          class='d-flex'
+          onSubmit={e => {
+            e.preventDefault()
+            e.stopPropagation()
+          }}
+        >
           <input
             class='form-control me-2'
             type='search'
