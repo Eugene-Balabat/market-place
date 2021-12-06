@@ -3,28 +3,34 @@ import Product from './Product'
 import axios from 'axios'
 import {
   setProductData,
-  setInitialState
+  setInitialState,
+  setUpdateValue
 } from '../../redux/Reducers/Content/product-reducer'
+import { setAuthorizedStatus } from '../../redux/Reducers/user-reducer'
 import { connect } from 'react-redux'
+import { Redirect } from 'react-router'
 
 class ProductContainer extends React.Component {
   constructor(props) {
     super(props)
     this.buttonRef = React.createRef()
+
+    const queryString = require('query-string')
+    this.idProduct = queryString.parseUrl(window.location.search).query.id
   }
 
   async componentDidMount() {
     try {
-      const queryString = require('query-string')
-      const id = queryString.parseUrl(window.location.search).query.id
-
-      const response = await axios.get('/api/get/product', {
-        headers: { id: id }
+      const responseData = await axios.get('/api/get/product', {
+        headers: { id: this.idProduct }
       })
 
-      this.props.setProductData(response.data.product)
-      !this.buttonRef.current.classList.contains('disabled') &&
-        this.setButtonStatus(this.buttonRef.current)
+      const productData = { ...responseData.data.product, disable: true }
+      this.props.setProductData(productData)
+
+      this.requestToCheckOrders(responseData)
+      // !this.buttonRef.current.classList.contains('disabled') &&
+      //   this.setButtonStatus(this.buttonRef.current)
     } catch (e) {
       console.log(e)
     }
@@ -34,24 +40,95 @@ class ProductContainer extends React.Component {
     this.props.setInitialState()
   }
 
-  setButtonStatus(element) {
-    this.props.userState.isAuthorized
-      ? this.setUnDisable(element)
-      : this.setDisable(element)
+  isOrder = (product, orders) => {
+    for (const element of orders) {
+      if (element.item === product._id) return true
+    }
+    return false
   }
 
-  setDisable = element => {
-    !element.classList.contains('disabled') && element.classList.add('disabled')
+  logOut = () => {
+    this.props.setAuthorizedStatus(false)
+    this.props.setUpdateValue(true)
   }
 
-  setUnDisable = element => {
-    element.classList.contains('disabled') &&
-      element.classList.remove('disabled')
+  clickToBuy = async () => {
+    try {
+      const responseData = await axios.get('/api/get/product', {
+        headers: { id: this.idProduct }
+      })
+
+      await axios.post(
+        '/api/post/add-order',
+        {
+          idProduct: this.idProduct
+        },
+        {
+          headers: { Token: localStorage.getItem('key') }
+        }
+      )
+
+      this.requestToCheckOrders(responseData)
+    } catch (err) {
+      if (err.response) {
+        const { type, msg } = err.response.data.error
+        const headerToast = 'Ошибка'
+
+        if (type) {
+          //   this.addNewToast(msg, headerToast, this.props.setNewUserToast)
+          this.logOut()
+        } else {
+          //   this.addNewToast(msg, headerToast, this.props.setNewToast)
+          //   this.showToasts()
+          console.log(err.response)
+        }
+      } else if (err.request) console.log(Error, err.messages)
+    }
+  }
+
+  requestToCheckOrders = async responseData => {
+    try {
+      const responseOrders = await axios.get('/api/get/orders', {
+        headers: { Token: localStorage.getItem('key') }
+      })
+
+      const orders = responseOrders.data.orders
+      const product = responseData.data.product
+
+      const data = this.isOrder(product, orders)
+        ? { ...product, disable: true }
+        : { ...product, disable: false }
+
+      this.props.setProductData(data)
+    } catch (err) {
+      if (err.response) {
+        const { type, msg } = err.response.data.error
+        const headerToast = 'Ошибка'
+
+        if (type) {
+          //   this.addNewToast(msg, headerToast, this.props.setNewUserToast)
+          this.logOut()
+        } else {
+          //   this.addNewToast(msg, headerToast, this.props.setNewToast)
+          //   this.showToasts()
+          console.log(err.response)
+        }
+      } else if (err.request) console.log(Error, err.messages)
+    }
   }
 
   render() {
     return (
-      <Product data={this.props.productState.data} buttonRef={this.buttonRef} />
+      (this.props.productState.upDatePage &&
+        this.props.setUpdateValue(false) && (
+          <Redirect to={`/product/?id=${this.idProduct}`} />
+        )) || (
+        <Product
+          data={this.props.productState.data}
+          buttonRef={this.buttonRef}
+          clickToBuy={this.clickToBuy}
+        />
+      )
     )
   }
 }
@@ -63,6 +140,9 @@ const mapStateToProps = state => {
   }
 }
 
-export default connect(mapStateToProps, { setProductData, setInitialState })(
-  ProductContainer
-)
+export default connect(mapStateToProps, {
+  setProductData,
+  setInitialState,
+  setUpdateValue,
+  setAuthorizedStatus
+})(ProductContainer)

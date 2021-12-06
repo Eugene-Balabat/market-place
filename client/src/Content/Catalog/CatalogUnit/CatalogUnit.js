@@ -6,7 +6,7 @@ function CatalogUnit(props) {
       <div class='p-3 border bg-light rounded-3'>
         <div class='card'>
           <img
-            src={props.data.imageUrl || `/images/product.jpg`}
+            src='/images/product.jpg'
             className='rounded card-img-top img-thumbnail'
             alt='...'
             style={{ width: '300px', height: '280px' }}

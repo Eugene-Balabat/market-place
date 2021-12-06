@@ -6,6 +6,7 @@ import userReducer from './Reducers/user-reducer'
 import catalogReducer from './Reducers/Content/catalog-reducer'
 import listReducer from './Reducers/Content/list-reducer'
 import productReducer from './Reducers/Content/product-reducer'
+import orderReducer from './Reducers/Content/order-reducer'
 
 const reducers = combineReducers({
   logInState: logInReducer,
@@ -14,7 +15,8 @@ const reducers = combineReducers({
   userState: userReducer,
   catalogState: catalogReducer,
   listState: listReducer,
-  productState: productReducer
+  productState: productReducer,
+  orderState: orderReducer
 })
 
 const store = createStore(reducers)

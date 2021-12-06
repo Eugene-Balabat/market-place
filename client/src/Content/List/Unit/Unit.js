@@ -32,8 +32,9 @@ function Unit(props) {
         <div class='col-4 m-0 '>
           <p
             class={`w-100 btn text-center m-0 p-2 btn-outline-light rounded-3 ${
-              !props.data.inStock && `disabled`
+              (!props.data.inStock || props.data.disable) && `disabled`
             }`}
+            onClick={() => props.clickToBuy(props.data._id)}
           >
             В корзину
           </p>

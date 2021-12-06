@@ -32,6 +32,7 @@ export const setNewUserToast = data => ({
   type: SET_NEW_TOAST_USER,
   value: data
 })
+
 export const setAuthorizedStatus = (value, token = null) => ({
   type: SET_AUTHORIZED_STATUS_VALUE,
   value,

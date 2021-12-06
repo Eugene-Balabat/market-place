@@ -1,6 +1,7 @@
 const User = require('../models/User')
 const Item = require('../models/Item')
 const Chapter = require('../models/Chapter')
+const Order = require('../models/Order')
 const jwt = require('jsonwebtoken')
 const config = require('../config/default.json')
 
@@ -45,6 +46,89 @@ class PostController {
           index: updatedUser.index
         },
         msg: 'Данные успешно обновлены'
+      })
+    } catch (e) {
+      if (e.name === 'TokenExpiredError')
+        return res.status(500).json({
+          error: { msg: 'Жизненный цикл токена истек.', type: e.name }
+        })
+      else if (e.name === 'JsonWebTokenError')
+        return res.status(500).json({
+          error: { msg: 'Недействительный токен.', type: e.name }
+        })
+      else
+        return res.status(500).json({
+          error: { msg: 'Ошибка сервера: ' + e.message }
+        })
+    }
+  }
+  async addNewOrder(req, res) {
+    try {
+      const { idProduct } = req.body
+
+      const { token } = req.headers
+      const decodedToken = await jwt.verify(token, config.jwtKey)
+
+      const user = await User.findOne({ _id: decodedToken.userId })
+
+      if (!user)
+        return res.status(400).json({
+          error: {
+            msg: 'Ошибка во время выполнения запроса: Пользователь не найден.'
+          }
+        })
+
+      const candidat = await Order.findOne({ user: user._id, item: idProduct })
+      if (candidat)
+        return res.status(400).json({
+          error: {
+            msg: 'Ошибка во время выполнения запроса: Заказ уже добавлен.'
+          }
+        })
+
+      const order = await new Order({ user: user._id, item: idProduct })
+      if (!order)
+        return res.status(400).json({
+          error: {
+            msg: 'Ошибка во время выполнения запроса: Данные не были добавлены.'
+          }
+        })
+      order.save()
+
+      res.status(200).json({
+        msg: 'Данные успешно обновлены'
+      })
+    } catch (e) {
+      if (e.name === 'TokenExpiredError')
+        return res.status(500).json({
+          error: { msg: 'Жизненный цикл токена истек.', type: e.name }
+        })
+      else if (e.name === 'JsonWebTokenError')
+        return res.status(500).json({
+          error: { msg: 'Недействительный токен.', type: e.name }
+        })
+      else
+        return res.status(500).json({
+          error: { msg: 'Ошибка сервера: ' + e.message }
+        })
+    }
+  }
+  async deleteOrder(req, res) {
+    try {
+      const { id_order } = req.body
+
+      const { token } = req.headers
+      const decodedToken = await jwt.verify(token, config.jwtKey)
+
+      const user = await User.findOne({ _id: decodedToken.userId })
+
+      const result = await Order.deleteOne({
+        item: id_order,
+        user: decodedToken.userId
+      })
+
+      res.status(200).json({
+        msg: 'Данные были удалены'
       })
     } catch (e) {
       if (e.name === 'TokenExpiredError')
