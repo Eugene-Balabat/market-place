@@ -2,7 +2,7 @@ import css from './Order.module.css'
 
 function OrderUnit(props) {
   return (
-    <div class='row w-300'>
+    <div class='row w-300 m-0'>
       <div class='d-flex position-relative'>
         <img
           src='/images/product.jpg'

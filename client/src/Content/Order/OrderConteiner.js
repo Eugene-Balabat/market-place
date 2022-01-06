@@ -2,15 +2,26 @@ import React from 'react'
 import axios from 'axios'
 import { connect } from 'react-redux'
 import Order from './Order'
-import { setAuthorizedStatus } from '../../redux/Reducers/user-reducer'
+import {
+  setAuthorizedStatus,
+  setNewUserToast
+} from '../../redux/Reducers/user-reducer'
 import {
   setOrdersData,
-  setUpdateValue
+  deleteExiestingToast,
+  setNewToast
 } from '../../redux/Reducers/Content/order-reducer'
 import OrderUnit from './OrderUnit'
 import { Redirect } from 'react-router'
+import { Toast } from 'bootstrap'
+import { v4 as uuidv4 } from 'uuid'
 
 class OrderConteiner extends React.Component {
+  constructor(props) {
+    super(props)
+    this.toastConteinerRef = React.createRef()
+  }
+
   async componentDidMount() {
     this.responseToGetOrders()
   }
@@ -28,15 +39,47 @@ class OrderConteiner extends React.Component {
         const headerToast = 'Ошибка'
 
         if (type) {
-          //   this.addNewToast(msg, headerToast, this.props.setNewUserToast)
-          this.logOut()
+          this.addNewToast(msg, headerToast, this.props.setNewUserToast)
+          this.props.setAuthorizedStatus(false)
         } else {
-          //   this.addNewToast(msg, headerToast, this.props.setNewToast)
-          //   this.showToasts()
-          console.log(err.response)
+          this.addNewToast(msg, headerToast, this.props.setNewToast)
+          this.showToasts()
         }
       } else if (err.request) console.log(Error, err.messages)
     }
+  }
+
+  deleteToast = id => {
+    this.props.orderState.toasts.forEach(element => {
+      const index = this.props.orderState.toasts.indexOf(element)
+      if (element.id === id) this.props.deleteExiestingToast(index)
+    })
+  }
+
+  getUniqToastId = () => {
+    const id = uuidv4()
+    this.props.orderState.toasts.forEach(element => {
+      if (element.id === id) return this.getUniqToastId()
+    })
+    return id
+  }
+
+  addNewToast = (message, header, addToastCallback) => {
+    const id = this.getUniqToastId()
+    addToastCallback({
+      id,
+      body: message,
+      header
+    })
+  }
+
+  showToasts = () => {
+    const toastsLiveExample = this.toastConteinerRef.current.children
+
+    Object.entries(toastsLiveExample).forEach(element => {
+      const toast = new Toast(element[1])
+      toast.show()
+    })
   }
 
   deleteOrderItem = async id => {
@@ -55,24 +98,14 @@ class OrderConteiner extends React.Component {
         const headerToast = 'Ошибка'
 
         if (type) {
-          //   this.addNewToast(msg, headerToast, this.props.setNewUserToast)
-          this.logOut()
+          this.addNewToast(msg, headerToast, this.props.setNewUserToast)
+          this.props.setAuthorizedStatus(false)
         } else {
-          //   this.addNewToast(msg, headerToast, this.props.setNewToast)
-          //   this.showToasts()
-          console.log(err.response)
+          this.addNewToast(msg, headerToast, this.props.setNewToast)
+          this.showToasts()
         }
       } else if (err.request) console.log(Error, err.messages)
     }
-    // const parent =
-    //   event.currentTarget.parentNode.parentNode.parentNode.parentNode
-    // const child = event.currentTarget.parentNode.parentNode.parentNode
-    // parent.removeChild(child)
-  }
-
-  logOut = () => {
-    this.props.setAuthorizedStatus(false)
-    this.props.setUpdateValue(true)
   }
 
   render() {
@@ -81,9 +114,15 @@ class OrderConteiner extends React.Component {
     })
 
     return (
-      (this.props.orderState.upDatePage && this.props.setUpdateValue(false) && (
-        <Redirect to={`/login`} />
-      )) || <Order units={orderUnits} />
+      (this.props.orderState.upDatePage && <Redirect to={`/login`} />) || (
+        <Order
+          units={orderUnits}
+          countOrders={this.props.orderState.orders.length}
+          orderState={this.props.orderState}
+          toastConteinerRef={this.toastConteinerRef}
+          deleteToast={this.deleteToast}
+        />
+      )
     )
   }
 }
@@ -98,5 +137,7 @@ const mapStateToProps = state => {
 export default connect(mapStateToProps, {
   setOrdersData,
   setAuthorizedStatus,
-  setUpdateValue
+  setNewUserToast,
+  deleteExiestingToast,
+  setNewToast
 })(OrderConteiner)

@@ -4,40 +4,95 @@ import axios from 'axios'
 import {
   setProductData,
   setInitialState,
-  setUpdateValue
+  setUpdateValue,
+  deleteExiestingToast,
+  setNewToast
 } from '../../redux/Reducers/Content/product-reducer'
 import { setAuthorizedStatus } from '../../redux/Reducers/user-reducer'
 import { connect } from 'react-redux'
 import { Redirect } from 'react-router'
+import { Toast } from 'bootstrap'
+import { v4 as uuidv4 } from 'uuid'
 
 class ProductContainer extends React.Component {
   constructor(props) {
     super(props)
     this.buttonRef = React.createRef()
+    this.toastConteinerRef = React.createRef()
 
     const queryString = require('query-string')
     this.idProduct = queryString.parseUrl(window.location.search).query.id
   }
 
   async componentDidMount() {
+    this.deffaultSetData()
+  }
+
+  componentWillUnmount() {
+    this.props.setInitialState()
+  }
+
+  componentDidUpdate() {
+    if (this.props.productState.upDatePage) {
+      this.deffaultSetData()
+      this.props.setUpdateValue(false)
+    }
+  }
+
+  deffaultSetData = async () => {
     try {
       const responseData = await axios.get('/api/get/product', {
         headers: { id: this.idProduct }
       })
 
-      const productData = { ...responseData.data.product, disable: true }
-      this.props.setProductData(productData)
+      if (this.props.userState.isAuthorized)
+        this.requestToCheckOrders(responseData)
+      else {
+        const productData = { ...responseData.data.product, disable: true }
+        this.props.setProductData(productData)
+      }
+    } catch (error) {
+      const { msg } = error.response.data.error
+      const headerToast = 'Ошибка'
 
-      this.requestToCheckOrders(responseData)
-      // !this.buttonRef.current.classList.contains('disabled') &&
-      //   this.setButtonStatus(this.buttonRef.current)
-    } catch (e) {
-      console.log(e)
+      if (this.toastConteinerRef.current) {
+        this.addNewToast(msg, headerToast, this.props.setNewToast)
+        this.showToasts()
+      }
     }
   }
 
-  componentWillUnmount() {
-    this.props.setInitialState()
+  deleteToast = id => {
+    this.props.productState.toasts.forEach(element => {
+      const index = this.props.productState.toasts.indexOf(element)
+      if (element.id === id) this.props.deleteExiestingToast(index)
+    })
+  }
+
+  getUniqToastId = () => {
+    const id = uuidv4()
+    this.props.productState.toasts.forEach(element => {
+      if (element.id === id) return this.getUniqToastId()
+    })
+    return id
+  }
+
+  addNewToast = (message, header, addToastCallback) => {
+    const id = this.getUniqToastId()
+    addToastCallback({
+      id,
+      body: message,
+      header
+    })
+  }
+
+  showToasts = () => {
+    const toastsLiveExample = this.toastConteinerRef.current.children
+
+    Object.entries(toastsLiveExample).forEach(element => {
+      const toast = new Toast(element[1])
+      toast.show()
+    })
   }
 
   isOrder = (product, orders) => {
@@ -74,13 +129,11 @@ class ProductContainer extends React.Component {
         const { type, msg } = err.response.data.error
         const headerToast = 'Ошибка'
 
-        if (type) {
-          //   this.addNewToast(msg, headerToast, this.props.setNewUserToast)
-          this.logOut()
-        } else {
-          //   this.addNewToast(msg, headerToast, this.props.setNewToast)
-          //   this.showToasts()
-          console.log(err.response)
+        if (type) this.props.userState.isAuthorized && this.logOut()
+
+        if (this.toastConteinerRef.current) {
+          this.addNewToast(msg, headerToast, this.props.setNewToast)
+          this.showToasts()
         }
       } else if (err.request) console.log(Error, err.messages)
     }
@@ -105,13 +158,11 @@ class ProductContainer extends React.Component {
         const { type, msg } = err.response.data.error
         const headerToast = 'Ошибка'
 
-        if (type) {
-          //   this.addNewToast(msg, headerToast, this.props.setNewUserToast)
-          this.logOut()
-        } else {
-          //   this.addNewToast(msg, headerToast, this.props.setNewToast)
-          //   this.showToasts()
-          console.log(err.response)
+        if (type) this.props.userState.isAuthorized && this.logOut()
+
+        if (this.toastConteinerRef.current) {
+          this.addNewToast(msg, headerToast, this.props.setNewToast)
+          this.showToasts()
         }
       } else if (err.request) console.log(Error, err.messages)
     }
@@ -119,16 +170,13 @@ class ProductContainer extends React.Component {
 
   render() {
     return (
-      (this.props.productState.upDatePage &&
-        this.props.setUpdateValue(false) && (
-          <Redirect to={`/product/?id=${this.idProduct}`} />
-        )) || (
-        <Product
-          data={this.props.productState.data}
-          buttonRef={this.buttonRef}
-          clickToBuy={this.clickToBuy}
-        />
-      )
+      <Product
+        productState={this.props.productState}
+        buttonRef={this.buttonRef}
+        clickToBuy={this.clickToBuy}
+        toastConteinerRef={this.toastConteinerRef}
+        deleteToast={this.deleteToast}
+      />
     )
   }
 }
@@ -144,5 +192,7 @@ export default connect(mapStateToProps, {
   setProductData,
   setInitialState,
   setUpdateValue,
-  setAuthorizedStatus
+  setAuthorizedStatus,
+  deleteExiestingToast,
+  setNewToast
 })(ProductContainer)
