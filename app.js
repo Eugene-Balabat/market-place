@@ -17,6 +17,10 @@ app.get('/api/auth/users', authMiddleware, async (req, res) => {
   User.find({}, (error, data) => res.status(200).json(data))
 })
 
+app.get('/', async (req, res) => {
+  res.end(`<h1>Home page</h1>`)
+})
+
 async function start() {
   try {
     await mongoose.connect(config.get('mongoUri'))
